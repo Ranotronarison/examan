@@ -8,4 +8,7 @@ else
 fi
 
 # run docker compose
-docker compose up -d --build
+docker compose up -d --build --wait
+
+# run composer install in examan-api
+docker compose exec -it examan-api composer install
