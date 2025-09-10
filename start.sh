@@ -7,6 +7,9 @@ else
   echo "examan-api repository already exists. Skipping clone."
 fi
 
+# make sure all submodules are initialized and updated
+git submodule update --remote examan-api
+
 # run docker compose
 docker compose up -d --build --wait
 
