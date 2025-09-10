@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# check if the examan api repository exists
-if [ ! -d "./examan-api" ]; then
+if [ ! -d "./examan-api" ] || [ -z "$(ls -A ./examan-api)" ]; then
   echo "Cloning examan-api repository..."
   git clone git@github.com:Ranotronarison/examan-api.git && git submodule update --init --recursive
 else
