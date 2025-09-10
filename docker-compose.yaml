@@ -1,0 +1,56 @@
+services:
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: examan-web
+    ports:
+      - "${WEB_PORT:-8000}:80"
+    command: nginx -g "daemon off;"
+    links:
+      - examan-api
+    volumes:
+      - ./examan-api:/var/www/html
+    networks:
+      - backend
+
+  examan-api:
+    build:
+      context: ./examan-api
+      dockerfile: ./docker/php/Dockerfile
+      target: php_dev
+    environment:
+      - DATABASE_URL=mysql://app:password@examan-db:3306/examan-db?serverVersion=12.0-MariaDB&charset=utf8mb4
+    links:
+      - examan-db
+    container_name: examan-api
+    volumes:
+      - ./examan-api:/var/www/html
+    networks:
+      - backend
+
+  examan-db:
+    image: mariadb:12.0
+    container_name: examan-db
+    environment:
+      MARIADB_ROOT_PASSWORD: password
+      MARIADB_DATABASE: examan-db
+      MARIADB_USER: app
+      MARIADB_PASSWORD: password
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - ./mariadb/db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+  
