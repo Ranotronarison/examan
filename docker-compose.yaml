@@ -20,7 +20,7 @@ services:
       dockerfile: ./docker/php/Dockerfile
       target: php_dev
     environment:
-      - DATABASE_URL=mysql://app:password@examan-db:3306/examan-db?serverVersion=12.0-MariaDB&charset=utf8mb4
+      - DATABASE_URL=mysql://app:password@examan-db:3306/examan-db?serverVersion=mariadb-12.0.0&charset=utf8mb4
     links:
       - examan-db
     container_name: examan-api
