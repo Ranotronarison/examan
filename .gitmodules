@@ -1,3 +1,6 @@
 [submodule "examan-api"]
 	path = examan-api
 	url = git@github.com:Ranotronarison/examan-api.git
+[submodule "examan-front"]
+	path = examan-front
+	url = git@github.com:Ranotronarison/examan-front.git
