@@ -47,6 +47,12 @@ The backend requires the following environment variables to be configured:
 | `CORS_ALLOW_ORIGIN` | CORS allowed origins | `'^https?://(localhost\|127\.0\.0\.1)(:[0-9]+)?$'` |
 | `WEB_PORT` | Web server port | `8000` |
 
+#### **Frontend Development Variables (Docker Compose)**
+
+| Variable | Description | Default Value |
+|----------|-------------|---------------|
+| `FRONTEND_DEV_PORT` | Frontend development server port | `4173` |
+
 #### **Database Variables (Docker Compose)**
 
 | Variable | Description | Default Value |
@@ -62,7 +68,9 @@ Environment variables are configured in:
 - `examan-api/.env` - Default environment variables
 - `examan-api/.env.local` - Local overrides (not committed)
 - `examan-api/.env.dev.local` - Development-specific overrides
+- `examan-front/.env.local` - Frontend development overrides
 - `docker-compose.yaml` - Container environment variables
+- `docker-compose.override.yaml` - Development-specific services
 
 ## ⚡ Quick Start
 
@@ -107,6 +115,25 @@ To completely remove everything including volumes:
 docker compose down -v
 ```
 
+### Development Mode
+
+For frontend development with hot reload, you can use the development profile:
+
+```bash
+# Start with development frontend server (includes hot reload)
+docker compose --profile dev up -d
+
+# Access points:
+# - Development: http://localhost:4173 (hot reload)
+# - Production: http://localhost:8000 (nginx)
+```
+
+The `docker-compose.override.yaml` file automatically provides a development service for the frontend when using the `dev` profile. This uses the simplified Dockerfile optimized for development, which gives you:
+- ✅ **Hot reload** for instant code changes
+- ✅ **Source maps** for better debugging
+- ✅ **Development optimizations** from Vite
+- ✅ **Simple setup** without production complexity
+
 ## 🔨 Manual Setup
 
 If you prefer to set up the application manually:
@@ -124,6 +151,8 @@ git clone git@github.com:Ranotronarison/examan-front.git
 ```
 
 ### 2. Build Frontend
+
+For the static frontend build, use the dedicated build Dockerfile:
 
 ```bash
 cd examan-front
@@ -211,7 +240,36 @@ docker compose exec examan-api php bin/console doctrine:schema:update --force
 
 ### Frontend Development
 
-When making changes to the frontend:
+#### **Option 1: Development with Hot Reload (Recommended for Active Development)**
+
+For active frontend development with hot reload and live updates, use the development service:
+
+```bash
+# Start all services including frontend development server
+docker compose --profile dev up -d
+
+# The frontend will be available at:
+# - Development server: http://localhost:4173 (with hot reload)
+# - Production build: http://localhost:8000 (served by nginx)
+```
+
+**Development Features:**
+- ✅ **Hot reload**: Changes are instantly reflected in the browser
+- ✅ **Source maps**: Better debugging experience
+- ✅ **Fast builds**: Vite's fast development server
+- ✅ **Live updates**: No need to rebuild manually
+
+```bash
+# View frontend development logs
+docker compose logs -f examan-front
+
+# Stop development services
+docker compose --profile dev down
+```
+
+#### **Option 2: Production Build Deployment**
+
+When you want to test the production build or deploy changes:
 
 ```bash
 # Rebuild and deploy frontend
@@ -222,6 +280,18 @@ This script:
 - Builds the React application using Docker
 - Extracts built files
 - Restarts nginx to serve updated files
+
+#### **Switching Between Development Modes**
+
+```bash
+# Start with development frontend (hot reload)
+docker compose --profile dev up -d
+
+# Switch to production build testing
+docker compose --profile dev down
+./scripts/deploy-frontend.sh
+docker compose up -d
+```
 
 ### Backend Development
 
@@ -255,10 +325,13 @@ docker compose logs -f web
 Once the deployment is completed, you can access the application at:
 
 ### **Frontend Application**
-- **URL**: http://localhost:8000
+- **Production URL**: http://localhost:8000
+- **Development URL**: http://localhost:4173 *(available when using `--profile dev`)*
 - **Description**: Main React application interface
 - **Login Credentials**:
   - Admin: `admin@examan.com` / `password123`
+
+**Note**: The development server (port 4173) provides hot reload and faster development experience, while the production build (port 8000) serves the optimized application through nginx.
 
 ### **API Documentation**
 - **URL**: http://localhost:8000/api
@@ -290,11 +363,17 @@ curl -X GET http://localhost:8000/api/exams \
 ### Container Management
 
 ```bash
-# Start all services
+# Start all services (production mode)
 docker compose up -d
+
+# Start all services with frontend development server
+docker compose --profile dev up -d
 
 # Stop all services
 docker compose down
+
+# Stop development services specifically
+docker compose --profile dev down
 
 # Restart specific service
 docker compose restart examan-api
@@ -311,8 +390,14 @@ docker compose exec examan-db mysql -u app -p
 ### Development Commands
 
 ```bash
-# Frontend rebuild
+# Frontend development with hot reload
+docker compose --profile dev up -d
+
+# Frontend production build
 ./scripts/deploy-frontend.sh
+
+# View frontend development logs
+docker compose logs -f examan-front
 
 # Backend cache clear
 docker compose exec examan-api php bin/console cache:clear
@@ -353,7 +438,7 @@ docker compose logs examan-db
 
 #### **Frontend Not Loading**
 ```bash
-# Rebuild frontend
+# For production build issues
 ./scripts/deploy-frontend.sh
 
 # Check nginx logs
@@ -361,6 +446,21 @@ docker compose logs web
 
 # Verify dist folder exists
 ls -la examan-front/dist/
+```
+
+#### **Frontend Development Server Issues**
+```bash
+# Check development server logs
+docker compose logs -f examan-front
+
+# Restart development service
+docker compose --profile dev restart examan-front
+
+# Check if node_modules are installed
+docker compose exec examan-front ls -la node_modules
+
+# Manually install dependencies if needed
+docker compose exec examan-front npm ci
 ```
 
 #### **API Returning 500 Errors**
@@ -403,6 +503,7 @@ curl -I http://localhost:8000/api
 ```
 examan/
 ├── docker-compose.yaml          # Docker orchestration
+├── docker-compose.override.yaml # Development services (auto-loaded)
 ├── start.sh                     # Automated setup script
 ├── scripts/                     # Deployment and utility scripts
 │   ├── deploy-frontend.sh       # Frontend deployment script
@@ -416,10 +517,18 @@ examan/
 ├── examan-front/                # React + Vite frontend
 │   ├── src/                     # React components
 │   ├── dist/                    # Built static files
-│   └── Dockerfile.build         # Docker build configuration
+│   ├── Dockerfile               # Development server configuration
+│   └── Dockerfile.build         # Static build configuration
 ├── web/                         # Nginx configuration
 └── mariadb/                     # Database data
 ```
+
+### Frontend Dockerfile Purpose
+
+The frontend directory contains two Dockerfiles for different purposes:
+
+- **`Dockerfile`**: Runs the Vite development server with hot reload (used by `docker-compose.override.yaml`)
+- **`Dockerfile.build`**: Creates static build files for nginx serving (used by deployment scripts)
 
 ---
 

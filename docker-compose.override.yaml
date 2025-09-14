@@ -1,0 +1,25 @@
+# Docker Compose Override for Development
+# This file is automatically loaded by Docker Compose and provides
+# additional services for development purposes.
+
+services:
+  # Frontend development service with hot reload
+  examan-front:
+    build:
+      context: ./examan-front
+      dockerfile: Dockerfile
+    container_name: examan-front-dev
+    ports:
+      - "${FRONTEND_DEV_PORT:-4173}:4173"
+    volumes:
+      - ./examan-front:/app
+      - /app/node_modules  # Anonymous volume to avoid overwriting node_modules
+    environment:
+      - VITE_API_URL=http://localhost:${WEB_PORT:-8000}/api
+      - NODE_ENV=development
+    networks:
+      - backend
+    depends_on:
+      - examan-api
+    profiles:
+      - dev
