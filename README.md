@@ -90,9 +90,10 @@ This script will:
 2. ✅ Build the frontend application using Docker
 3. ✅ Start all Docker containers
 4. ✅ Install PHP dependencies
-5. ✅ Create database schema
-6. ✅ Optionally load fixtures (initial data)
-7. ✅ Configure nginx for serving both frontend and API
+5. ✅ Generate JWT authentication keys
+6. ✅ Create database schema
+7. ✅ Optionally load fixtures (initial data)
+8. ✅ Configure nginx for serving both frontend and API
 
 ### Stopping the Application
 
@@ -172,6 +173,9 @@ docker compose up -d --wait
 
 # Install PHP dependencies
 docker compose exec examan-api composer install
+
+# Generate JWT authentication keys
+docker compose exec examan-api php bin/console lexik:jwt:generate-keypair --skip-if-exists
 ```
 
 ### 4. Setup Database
@@ -234,6 +238,48 @@ docker compose exec examan-api php bin/console doctrine:schema:update --force
 
 # Optionally load fixtures
 ./scripts/load-fixtures.sh
+```
+
+## 🔐 JWT Authentication Setup
+
+The application uses **Lexik JWT Authentication Bundle** for API authentication. JWT keys are required for the application to function properly.
+
+### **Automatic JWT Key Generation**
+
+The setup script automatically generates JWT keys. If you need to regenerate them manually:
+
+```bash
+# Generate JWT keys (skip if they already exist)
+docker compose exec examan-api php bin/console lexik:jwt:generate-keypair --skip-if-exists
+
+# Force regenerate JWT keys (overwrite existing)
+docker compose exec examan-api php bin/console lexik:jwt:generate-keypair --overwrite
+```
+
+### **JWT Key Location**
+
+JWT keys are stored in the backend at:
+- **Private Key**: `examan-api/config/jwt/private.pem`
+- **Public Key**: `examan-api/config/jwt/public.pem`
+
+### **JWT Configuration**
+
+The JWT configuration is managed through environment variables in `examan-api/.env`:
+
+```env
+JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
+JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
+JWT_PASSPHRASE=your-jwt-passphrase
+```
+
+### **Token Usage**
+
+Once authenticated, include the JWT token in API requests:
+
+```bash
+# Example: Get authenticated user profile
+curl -X GET http://localhost:8000/api/users/me \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
 ## 🔄 Development Workflow
@@ -402,6 +448,9 @@ docker compose logs -f examan-front
 # Backend cache clear
 docker compose exec examan-api php bin/console cache:clear
 
+# Generate/regenerate JWT keys
+docker compose exec examan-api php bin/console lexik:jwt:generate-keypair --skip-if-exists
+
 # Database reset
 docker compose exec examan-api php bin/console doctrine:database:drop --force
 docker compose exec examan-api php bin/console doctrine:database:create
@@ -480,8 +529,16 @@ docker compose exec examan-api php bin/console doctrine:database:create --if-not
 # Verify JWT keys exist
 docker compose exec examan-api ls -la config/jwt/
 
-# Generate new JWT keys if missing
+# Generate JWT keys if missing
+docker compose exec examan-api php bin/console lexik:jwt:generate-keypair --skip-if-exists
+
+# Force regenerate JWT keys if corrupted
 docker compose exec examan-api php bin/console lexik:jwt:generate-keypair --overwrite
+
+# Test JWT token generation
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "admin@examan.com", "password": "password123"}'
 ```
 
 ### Getting Help

@@ -52,6 +52,10 @@ docker compose up -d --wait
 echo "📚 Installing dependencies..."
 docker compose exec examan-api composer install --no-interaction
 
+# Generate JWT keys if needed
+echo "🔐 Setting up JWT authentication..."
+docker compose exec examan-api php bin/console lexik:jwt:generate-keypair --skip-if-exists
+
 # Setup database
 echo "🗄️  Setting up database..."
 sleep 5
