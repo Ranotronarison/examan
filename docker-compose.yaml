@@ -11,6 +11,7 @@ services:
       - examan-api
     volumes:
       - ./examan-api:/var/www/html
+      - ./examan-front/dist:/var/www/frontend/dist
     networks:
       - backend
 
