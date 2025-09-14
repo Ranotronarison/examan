@@ -25,75 +25,82 @@ Before running the application, ensure you have the following installed:
 
 ## 🔧 Environment Variables
 
-### Backend Environment Variables
+### ✅ Pre-configured Environment
 
-The backend requires the following environment variables to be configured:
+**Good news!** All required environment variables are already pre-configured in the project. You don't need to set anything manually - just run the `./start.sh` script and everything will work out of the box.
 
-#### **Mandatory Variables**
+The application comes with these pre-configured files:
+- `docker-compose.yaml` - Container environment variables and database settings
+- `docker-compose.override.yaml` - Development-specific services and ports
+- `examan-api/.env.dev` - Backend environment variables (APP_SECRET, JWT keys, DATABASE_URL)
+- `examan-api/.env` - Default Symfony environment configuration
 
-| Variable | Description | Example Value |
-|----------|-------------|---------------|
-| `DATABASE_URL` | Database connection string | `mysql://app:password@examan-db:3306/examan-db?serverVersion=mariadb-12.0.0&charset=utf8mb4` |
+### Environment Variables Reference
+
+For reference, here are the variables that are already configured for you:
+
+#### **Backend Variables (Pre-configured in `examan-api/.env.dev`)**
+
+| Variable | Description | Pre-configured Value |
+|----------|-------------|---------------------|
+| `DATABASE_URL` | Database connection string | `mysql://app:password@examan-db:3306/examan-db` |
 | `APP_SECRET` | Symfony application secret | `62de4bcea013fa873bbaeba7bdd1cc29` |
 | `JWT_SECRET_KEY` | Path to JWT private key | `%kernel.project_dir%/config/jwt/private.pem` |
 | `JWT_PUBLIC_KEY` | Path to JWT public key | `%kernel.project_dir%/config/jwt/public.pem` |
 | `JWT_PASSPHRASE` | JWT key passphrase | `d84abf742861df7e3b0082652d23747059f849a5351a66aa4e15233e905a0512` |
 
-#### **Optional Variables**
+#### **Docker Compose Variables (Pre-configured in `docker-compose.yaml`)**
 
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
-| `APP_ENV` | Application environment | `dev` |
-| `CORS_ALLOW_ORIGIN` | CORS allowed origins | `'^https?://(localhost\|127\.0\.0\.1)(:[0-9]+)?$'` |
+| Variable | Description | Pre-configured Value |
+|----------|-------------|---------------------|
 | `WEB_PORT` | Web server port | `8000` |
-
-#### **Frontend Development Variables (Docker Compose)**
-
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
-| `FRONTEND_DEV_PORT` | Frontend development server port | `4173` |
-
-#### **Database Variables (Docker Compose)**
-
-| Variable | Description | Default Value |
-|----------|-------------|---------------|
 | `MARIADB_ROOT_PASSWORD` | MariaDB root password | `password` |
 | `MARIADB_DATABASE` | Database name | `examan-db` |
 | `MARIADB_USER` | Database user | `app` |
 | `MARIADB_PASSWORD` | Database password | `password` |
 
-### Environment Files Location
+#### **Development Variables (Pre-configured in `docker-compose.override.yaml`)**
 
-Environment variables are configured in:
-- `examan-api/.env` - Default environment variables
-- `examan-api/.env.local` - Local overrides (not committed)
-- `examan-api/.env.dev.local` - Development-specific overrides
-- `examan-front/.env.local` - Frontend development overrides
-- `docker-compose.yaml` - Container environment variables
-- `docker-compose.override.yaml` - Development-specific services
+| Variable | Description | Pre-configured Value |
+|----------|-------------|---------------------|
+| `FRONTEND_DEV_PORT` | Frontend development server port | `4173` |
+| `VITE_API_URL` | Frontend API endpoint | `http://localhost:8000/api` |
+
+### 🎯 Quick Start - No Configuration Needed
+
+Simply run the setup script and you're ready to go:
+
+```bash
+./start.sh
+```
+
+The script automatically handles all environment setup, so you don't need to worry about configuring anything manually.
 
 ## ⚡ Quick Start
 
-The fastest way to get the application running is using the automated setup script:
+The fastest way to get the application running is using the automated setup script. **No manual configuration required** - all environment variables are pre-configured!
 
 ```bash
 # Clone the main repository
 git clone https://github.com/Ranotronarison/examan.git
 cd examan
 
-# Run the automated setup script
+# Run the automated setup script (everything is already configured!)
 ./start.sh
 ```
 
-This script will:
+That's it! The `start.sh` script will automatically:
 1. ✅ Clone and setup all submodules (`examan-api`, `examan-front`)
-2. ✅ Build the frontend application using Docker
-3. ✅ Start all Docker containers
-4. ✅ Install PHP dependencies
-5. ✅ Generate JWT authentication keys
-6. ✅ Create database schema
-7. ✅ Optionally load fixtures (initial data)
-8. ✅ Configure nginx for serving both frontend and API
+2. ✅ Use pre-configured environment variables (no setup needed)
+3. ✅ Build the frontend application using Docker
+4. ✅ Start all Docker containers with proper configuration
+5. ✅ Install PHP dependencies
+6. ✅ Generate JWT authentication keys
+7. ✅ Create database schema with pre-configured credentials
+8. ✅ Optionally load fixtures (initial data)
+9. ✅ Configure nginx for serving both frontend and API
+
+**🎉 No environment file editing or configuration needed - everything works out of the box!**
 
 ### Stopping the Application
 
@@ -137,7 +144,9 @@ The `docker-compose.override.yaml` file automatically provides a development ser
 
 ## 🔨 Manual Setup
 
-If you prefer to set up the application manually:
+> **💡 Note**: Manual setup is **not required** for most users. The `./start.sh` script handles everything automatically with pre-configured settings. Use manual setup only if you need to customize the deployment process or troubleshoot specific issues.
+
+If you prefer to set up the application manually or need to understand the individual steps:
 
 ### 1. Clone Repositories
 
