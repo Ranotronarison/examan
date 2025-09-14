@@ -4,14 +4,14 @@ A modern exam management application built with Symfony API Platform (backend) a
 
 ## 📋 Table of Contents
 
-- [Prerequisites](#prerequisites)
-- [Environment Variables](#environment-variables)
-- [Quick Start](#quick-start)
-- [Manual Setup](#manual-setup)
-- [Database Setup](#database-setup)
-- [Development Workflow](#development-workflow)
-- [Access Points](#access-points)
-- [Troubleshooting](#troubleshooting)
+- [Prerequisites](#-prerequisites)
+- [Environment Variables](#-environment-variables)
+- [Quick Start](#-quick-start)
+- [Manual Setup](#-manual-setup)
+- [Database Setup](#️-database-setup)
+- [Development Workflow](#-development-workflow)
+- [Access Points](#-access-points)
+- [Troubleshooting](#-troubleshooting)
 
 ## 🚀 Prerequisites
 
