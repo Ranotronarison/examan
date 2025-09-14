@@ -232,7 +232,7 @@ docker compose exec examan-api php bin/console doctrine:fixtures:load --no-inter
 
 **Default Fixture Data:**
 - **Admin User**: 
-  - Email: `admin@examan.com`
+  - Email/Username: `admin@examan.com`
   - Password: `password123`
   - Role: `ROLE_ADMIN`
 - **Sample Exams**: Multiple exam entries with different statuses
@@ -404,9 +404,9 @@ Once the deployment is completed, you can access the application at:
 
 ```bash
 # Login and get JWT token
-curl -X POST http://localhost:8000/api/auth/login \
+curl -X POST http://localhost:8000/api/api/login_check \
   -H "Content-Type: application/json" \
-  -d '{"email": "admin@examan.com", "password": "password123"}'
+  -d '{"username": "admin@examan.com", "password": "password123"}'
 
 # Get exams list (replace TOKEN with actual JWT)
 curl -X GET http://localhost:8000/api/exams \
@@ -545,9 +545,9 @@ docker compose exec examan-api php bin/console lexik:jwt:generate-keypair --skip
 docker compose exec examan-api php bin/console lexik:jwt:generate-keypair --overwrite
 
 # Test JWT token generation
-curl -X POST http://localhost:8000/api/auth/login \
+curl -X POST http://localhost:8000/api/auth/login_check \
   -H "Content-Type: application/json" \
-  -d '{"email": "admin@examan.com", "password": "password123"}'
+  -d '{"username": "admin@examan.com", "password": "password123"}'
 ```
 
 ### Getting Help
