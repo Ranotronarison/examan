@@ -43,9 +43,9 @@ services:
     volumes:
       - ./mariadb/db_data:/var/lib/mysql
     healthcheck:
-      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 10s
-      timeout: 30s
+      timeout: 60s
       retries: 3
       start_period: 30s
     networks:
@@ -54,4 +54,3 @@ services:
 networks:
   backend:
     driver: bridge
-  
